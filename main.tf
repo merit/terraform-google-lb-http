@@ -26,6 +26,7 @@ locals {
 
   is_internal      = var.load_balancing_scheme == "INTERNAL_SELF_MANAGED"
   internal_network = local.is_internal ? var.network : null
+  ssl_certificates = var.certificate_manager_certificates != null ? null : compact(concat(var.ssl_certificates, google_compute_ssl_certificate.default.*.self_link, google_compute_managed_ssl_certificate.default.*.self_link, ), )
 }
 
 ### IPv4 block ###
@@ -117,8 +118,10 @@ resource "google_compute_target_https_proxy" "default" {
   name    = "${var.name}-https-proxy"
   url_map = local.url_map
 
-  ssl_certificates = compact(concat(var.ssl_certificates, google_compute_ssl_certificate.default.*.self_link, google_compute_managed_ssl_certificate.default.*.self_link, ), )
-  certificate_map  = var.certificate_map != null ? "//certificatemanager.googleapis.com/${var.certificate_map}" : null
+  certificate_manager_certificates = var.certificate_manager_certificates
+  certificate_map                  = var.certificate_map != null ? "//certificatemanager.googleapis.com/${var.certificate_map}" : null
+
+  ssl_certificates = local.ssl_certificates
   ssl_policy       = var.ssl_policy
   quic_override    = var.quic == null ? "NONE" : var.quic ? "ENABLE" : "DISABLE"
 }

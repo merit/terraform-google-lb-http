@@ -243,6 +243,12 @@ variable "certificate_map" {
   default     = null
 }
 
+variable "certificate_manager_certificates" {
+  description = "Certificate Manager cert ids. Required if `ssl` is `true` and certificate_map is set."
+  type        = list(string)
+  default     = null
+}
+
 variable "ssl_policy" {
   type        = string
   description = "Selfink to SSL Policy"
